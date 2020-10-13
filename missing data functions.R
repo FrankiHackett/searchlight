@@ -1,6 +1,7 @@
 install.packages("naniar")
 install.packages("heatmaply")
 install.packages("reshape")
+install.packages("plotly")
 
 library(naniar)
 library(ggplot2)
@@ -8,6 +9,7 @@ library(heatmaply)
 library(dplyr)
 library(reshape)
 library(tidyr)
+library(data.table)
 
 
 
@@ -44,6 +46,10 @@ Missing_data$number_of_employees[is.na(Missing_data$number_of_employees)] <- 0
 #Grouping data
 
 Missing_data$company_country <- paste(Missing_data$year, Missing_data$company, Missing_data$country, sep = " - ")
+
+Missing_data$all_data <- paste(Missing_data$corporation_taxes_original_currency, Missing_data$revenue, 
+                             Missing_data$pbt, Missing_data$number_of_employees)
+
 Missing_data$company <-NULL
 Missing_data$country <-NULL
 Missing_data$year <-NULL
@@ -52,11 +58,17 @@ Pivot_missing <- gather(Missing_data, key = value_type, value = "value",
                         corporation_taxes_original_currency, 
                         revenue,
                         pbt,
-                        number_of_employees, na.rm = FALSE)
+                        number_of_employees, 
+                     #   all_data,
+                        na.rm = FALSE)
 
-##This line not currently working - trying to separate by year
+##Creating filter functions
 
-Missing_2017 <- Pivot_missing[company_country == grepl("2017", company_country)]
+Missing_2017 <- Pivot_missing[grep("2017", Pivot_missing$company_country),]
+Missing_2018 <- Pivot_missing[grep("2018", Pivot_missing$company_country),]
+Missing_2019 <- Pivot_missing[grep("2019", Pivot_missing$company_country),]
+Missing_2020 <- Pivot_missing[grep("2020", Pivot_missing$company_country),]
+
 
 
 
@@ -64,11 +76,15 @@ Missing_2017 <- Pivot_missing[company_country == grepl("2017", company_country)]
 
 ggplot(Pivot_missing, aes(x= value_type, y = company_country,
                          fill = value)) +
-  geom_tile() +
+  geom_raster() +
   theme(axis.text.x = element_text(
-    angle = 270,
+    angle = 90,
     face = 1
-  )) 
+  ), legend.position = "none", 
+  axis.text.y = element_text(
+    size = 2
+  )
+  ) 
 ?ggplot2
 
   
