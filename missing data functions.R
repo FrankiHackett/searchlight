@@ -58,8 +58,8 @@ Pivot_missing <- gather(Missing_data, key = value_type, value = "value",
 
 #using ggplot2 to build heatmap
 
-ggplot(Missing_2018, aes(x= year, y = company,
-                         fill = corporation_taxes_original_currency)) +
+ggplot(Pivot_missing, aes(x= value_type, y = company_country,
+                         fill = value)) +
   geom_tile()
 
 
