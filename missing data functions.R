@@ -54,17 +54,21 @@ Pivot_missing <- gather(Missing_data, key = value_type, value = "value",
                         pbt,
                         number_of_employees, na.rm = FALSE)
 
+##This line not currently working - trying to separate by year
+
+Missing_2017 <- Pivot_missing[company_country == grepl("2017", company_country)]
+
 
 
 #using ggplot2 to build heatmap
 
 ggplot(Pivot_missing, aes(x= value_type, y = company_country,
                          fill = value)) +
-  geom_tile()
+  geom_tile() +
+  theme(axis.text.x = element_text(
+    angle = 270,
+    face = 1
+  )) 
+?ggplot2
 
-
-x <- LETTERS[1:20]
-y <- paste0("var", seq(1,20))
-data <- expand.grid(X=x, Y=y)
-data$Z <- runif(400, 0, 5)
   
