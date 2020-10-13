@@ -21,3 +21,13 @@ Tax_data <- Tax_data %>%
   clean_names()
 
 Tax_data$year_end_date <- as.Date(Tax_data$year_end_date, format = "%d/%m/%Y")
+
+Tax_next_year <- Tax_data[, .(company, country, year, corporation_taxes_eur)]
+
+Tax_next_year$tax_year <- Tax_next_year$year - 1
+
+Tax_next_year$year <- NULL
+
+names(Tax_next_year)[names(Tax_next_year) == "tax_year"] <- "year"
+
+names(Tax_next_year)[names(Tax_next_year) == "corporation_taxes_eur"] <- "tax_for_the_year_eur"
