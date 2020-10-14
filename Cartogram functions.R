@@ -22,6 +22,8 @@ country_names <- rbind(country_names, c("Channel Islands", "Guernsey"))
 
 country_names <- rbind(country_names, c("Others", "Bouvet Island"))
 
+Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
+
 
 #data_countries <- as.data.frame(unique(Tax_aligned$country)) # this code gets the country names and helps tidy them
 
@@ -31,16 +33,30 @@ country_names <- rbind(country_names, c("Others", "Bouvet Island"))
 
 #wrong_names <- anti_join(country_list, country_names)
 
-Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
 
-Tax_to_map %>%
-  
+######We need to create summary functions before we can map as each country can have only one data value... :P 
 
 
-################ Putting 'Others' somewhere sensible
 
 
-plot(wrld_simpl)
+
+
+
+########## Binding to geoshapes
+
+names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
+
+wrld_simpl_tax <- wrld_simpl
+
+wrld_simpl_tax@data <- merge(wrld_simpl_tax@data, Tax_to_map, by = "NAME", all = TRUE)
+
+
+
+###### Mapping
+
+str(wrld_simpl)
+
+cartogram(wrld_simpl_tax, 'revenue')
 
 
 ??rgeos
