@@ -37,9 +37,14 @@ Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, al
 ######We need to create summary functions before we can map as each country can have only one data value... :P 
 
 
+ sum_country <- function(variable){
+  Tax_summarised  <- Tax_to_map %>%
+    group_by(Tax_to_map$country) %>%
+    mutate(sum_variable = sum(Tax_to_map[, ..variable], na.rm = TRUE))
+ }
 
 
-
+rev_sum <- sum_country("revenue")
 
 
 ########## Binding to geoshapes
