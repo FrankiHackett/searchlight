@@ -1,10 +1,12 @@
 install.packages("cartogram")
 install.packages("maptools")
 install.packages("rgeos")
+install.packages("tibble")
 
 library(cartogram)
 library(rgeos)
 library(maptools)
+library(tibble)
 
 ############ Getting the right mapping names for the data
 
@@ -24,6 +26,8 @@ country_names <- rbind(country_names, c("Others", "Bouvet Island"))
 
 Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
 
+names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
+
 
 #data_countries <- as.data.frame(unique(Tax_aligned$country)) # this code gets the country names and helps tidy them
 
@@ -38,15 +42,20 @@ Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, al
 
 
  sum_country <- function(variable){
-  Tax_summarised  <- Tax_to_map %>%
-    group_by(Tax_to_map$NAME) %>%
-    mutate(sum_variable = sum(Tax_to_map[, ..variable], na.rm = TRUE))
+   Tax_summarised <- Tax_to_map[, sum(Tax_to_map[, ..variable], na.rm = T), by = NAME]
+   sum_variable <- merge(Tax_to_map, Tax_summarised, by = "NAME", all = T) 
+   names(sum_variable)[names(sum_variable) == "v1"] <- "variable_sum"
+   return(sum_variable)
  }
 
- #####CANNOT GET THE FUNCTION TO WORK
 
-rev_sum <- NULL #sum_country("revenue")
+str(Tax_tbl)
 
+ #####CANNOT GET THE FUNCTION TO WORK. Gives me total sum after first run
+
+rev_sum <- sum_country(revenue)
+Tax_summarised <- Tax_to_map[, sum(Tax_to_map$revenue, na.rm = T), by = NAME]
+ungroup(Tax_to_map)
 
 ########## Binding to geoshapes
 

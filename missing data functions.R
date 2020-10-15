@@ -85,6 +85,6 @@ ggplot(Pivot_missing, aes(x= value_type, y = company_country,
     size = 2
   )
   ) 
-?ggplot2
+
 
   
