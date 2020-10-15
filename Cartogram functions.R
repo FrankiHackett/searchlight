@@ -6,6 +6,8 @@ install.packages("sf")
 install.packages("tidyverse")
 install.packages("mapproj")
 install.packages("tmap")
+install.packages("mosaic")
+install.packages("latticeExtra")
 
 library(cartogram)
 library(rgeos)
@@ -16,6 +18,8 @@ library(tidyverse)
 library(broom)
 library(mapproj)
 library(tmap)
+library(mosaic)
+library(latticeExtra)
 
 
 
@@ -90,7 +94,7 @@ wrld_simpl_tax <- wrld_simpl
 
 
 
-wrld_simpl_tax@data <- merge(wrld_simpl_tax@data, rev_sum, by = "NAME", all = TRUE)
+wrld_simpl_tax@data <- sp::merge(wrld_simpl_tax@data, rev_sum, by = "NAME", all = TRUE)
 
 ws_tax_no <- st_as_sf(wrld_simpl_tax)
 st_crs(ws_tax_no)
@@ -107,4 +111,4 @@ tax_coords[is.na(tax_coords)] <- 10
 
 tax_cart <- cartogram(tax_coords, "sum_variable")
 
-tm_shape(tax_cart) + tm_polygons("sum_variable")
+spplot(tax_coords, "sum_variable")
