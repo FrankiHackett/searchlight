@@ -8,7 +8,16 @@ library(rgeos)
 library(maptools)
 library(tibble)
 
-############ Getting the right mapping names for the data
+
+
+####################### Cartogram functions #########################################################
+#We need to get a list of countries from the wrld_simpl shapefile database, and combine it with our
+#database. This has involved some manual cleanup, as wrld_simpl doesn't necessarily reflect the current
+#set of countries in the world, or in the database.
+
+#We then create functions that allow for flexibly creating our relevant values
+
+####################### Getting the right mapping names for the data ##################################
 
 data(wrld_simpl)
 
@@ -16,23 +25,20 @@ country_names <- as.character(wrld_simpl$NAME, stringsAsFactors = FALSE)
 
 country_names <- fread("C:/Users/Admin/Documents/EUI/countries.csv", sep = ",", 
                        encoding = "UTF-8", integer64= "numeric")
-  
-  
-  ####Below deprecated as I have tried to make the map names better... 
-  
-  #as.data.frame(country_names)
 
-#names(country_names)[names(country_names) == "country_names"] <- "country"
+Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
 
-#country_names$map_country <- as.character(country_names$country)
+names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
+  
 
+
+#####Below deprecated as I have tried to make the map names better... 
+ 
 #country_names <- rbind(country_names, c("Channel Islands", "Guernsey"))
 
 #country_names <- rbind(country_names, c("Others", "Bouvet Island"))
 
-#Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
 
-#names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 
 
 #data_countries <- as.data.frame(unique(Tax_aligned$country)) # this code gets the country names and helps tidy them
@@ -44,28 +50,27 @@ country_names <- fread("C:/Users/Admin/Documents/EUI/countries.csv", sep = ",",
 #wrong_names <- anti_join(country_list, country_names)
 
 
-######We need to create summary functions before we can map as each country can have only one data value... :P 
+########################## Sum by country ###############################################
 
 
- sum_country <- function(variable){
-   Tax_summarised <- Tax_to_map[, sum(Tax_to_map[, ..variable], na.rm = T), by = NAME]
-   sum_variable <- merge(Tax_to_map, Tax_summarised, by = "NAME", all = T) 
-   names(sum_variable)[names(sum_variable) == "v1"] <- "variable_sum"
+ sum_country <- function(dataset, variable){
+   variable = enquo(arg = variable)
+   
+   Tax_summarised <- dataset %>%
+     group_by(NAME) %>%
+     summarise(sum_variable = sum(!!variable, na.rm = T))
+   sum_variable <- merge(dataset, Tax_summarised, by = "NAME", all = T) 
+  # names(sum_variable)[names(sum_variable) == "v1"] <- "variable_sum"
+   sum_variable <- dplyr::distinct(sum_variable, NAME, sum_variable)
    return(sum_variable)
  }
 
+# rev_sum <- sum_country(Tax_to_map, revenue_eur)
 
-str(Tax_tbl)
-
- #####CANNOT GET THE FUNCTION TO WORK. Gives me total sum after first r
-
-rev_sum <- sum_country(revenue)
-Tax_summarised <- Tax_to_map[, sum(Tax_to_map$revenue, na.rm = T), by = NAME]
-ungroup(Tax_to_map)
 
 ########## Binding to geoshapes
 
-names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
+
 
 wrld_simpl_tax <- wrld_simpl
 
