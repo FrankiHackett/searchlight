@@ -2,11 +2,20 @@ install.packages("cartogram")
 install.packages("maptools")
 install.packages("rgeos")
 install.packages("tibble")
+install.packages("sf")
+install.packages("tidyverse")
+install.packages("mapproj")
+install.packages("tmap")
 
 library(cartogram)
 library(rgeos)
 library(maptools)
 library(tibble)
+library(sf)
+library(tidyverse)
+library(broom)
+library(mapproj)
+library(tmap)
 
 
 
@@ -50,7 +59,7 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 #wrong_names <- anti_join(country_list, country_names)
 
 
-########################## Sum by country ###############################################
+########################## Sum by country function ###############################################
 
 
  sum_country <- function(dataset, variable){
@@ -62,27 +71,40 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
    sum_variable <- merge(dataset, Tax_summarised, by = "NAME", all = T) 
   # names(sum_variable)[names(sum_variable) == "v1"] <- "variable_sum"
    sum_variable <- dplyr::distinct(sum_variable, NAME, sum_variable)
+   sum_variable[is.na(sum_variable)] <- 0
    return(sum_variable)
  }
 
-# rev_sum <- sum_country(Tax_to_map, revenue_eur)
+ rev_sum <- sum_country(Tax_to_map, revenue_eur) #example for revenue
 
 
-########## Binding to geoshapes
 
+
+
+
+######################### Binding to geoshapes and transforming into sf shape ################################
+# This needs to be functionalised 
 
 
 wrld_simpl_tax <- wrld_simpl
 
-wrld_simpl_tax@data <- merge(wrld_simpl_tax@data, Tax_to_map, by = "NAME", all = TRUE)
 
 
+wrld_simpl_tax@data <- merge(wrld_simpl_tax@data, rev_sum, by = "NAME", all = TRUE)
 
-###### Mapping
+ws_tax_no <- st_as_sf(wrld_simpl_tax)
+st_crs(ws_tax_no)
 
-str(wrld_simpl)
+tax_coords <- st_transform(ws_tax_no, crs = 4088)
+st_crs(tax_coords)
 
-cartogram(wrld_simpl_tax, 'revenue')
+tax_coords[is.na(tax_coords)] <- 10
 
 
-??rgeos
+######################### Mapping ##########################################
+
+##This does not work yet
+
+tax_cart <- cartogram(tax_coords, "sum_variable")
+
+tm_shape(tax_cart) + tm_polygons("sum_variable")
