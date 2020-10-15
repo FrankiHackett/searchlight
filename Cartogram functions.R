@@ -12,21 +12,27 @@ library(tibble)
 
 data(wrld_simpl)
 
-country_names <- as.data.frame(wrld_simpl$NAME, stringsAsFactors = FALSE)
+country_names <- as.character(wrld_simpl$NAME, stringsAsFactors = FALSE)
 
-names(country_names)[names(country_names) == "wrld_simpl$NAME"] <- "country"
+country_names <- fread("C:/Users/Admin/Documents/EUI/countries.csv", sep = ",", 
+                       encoding = "UTF-8", integer64= "numeric")
+  
+  
+  ####Below deprecated as I have tried to make the map names better... 
+  
+  #as.data.frame(country_names)
 
-country_names$map_country <- country_names
+#names(country_names)[names(country_names) == "country_names"] <- "country"
 
-country_names$country <- as.character(country_names$country)
+#country_names$map_country <- as.character(country_names$country)
 
-country_names <- rbind(country_names, c("Channel Islands", "Guernsey"))
+#country_names <- rbind(country_names, c("Channel Islands", "Guernsey"))
 
-country_names <- rbind(country_names, c("Others", "Bouvet Island"))
+#country_names <- rbind(country_names, c("Others", "Bouvet Island"))
 
-Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
+#Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
 
-names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
+#names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 
 
 #data_countries <- as.data.frame(unique(Tax_aligned$country)) # this code gets the country names and helps tidy them
@@ -51,7 +57,7 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 
 str(Tax_tbl)
 
- #####CANNOT GET THE FUNCTION TO WORK. Gives me total sum after first run
+ #####CANNOT GET THE FUNCTION TO WORK. Gives me total sum after first r
 
 rev_sum <- sum_country(revenue)
 Tax_summarised <- Tax_to_map[, sum(Tax_to_map$revenue, na.rm = T), by = NAME]
