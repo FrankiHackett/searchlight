@@ -191,39 +191,24 @@ Graph_norm_tax <- prep_norm_data(Normal_rev, norm_rev, normal_tax, "2018",
 ###################################### Graphing ##################################################
 
 
-
-
-value_plot <- ggplot(Graph_norm_data, aes(fill = value_type, x = country, y = as.numeric(value))) +
+Create_normal_graphs <- function(data_norm){
+    value_plot <- ggplot(data_norm, aes(fill = value_type, x = country, y = as.numeric(value))) +
   
   # This add the bars with a blue color
-  geom_bar(stat = "identity", position = "dodge") +
+   geom_bar(stat = "identity", position = "dodge") +
   
   # Custom the theme: no axis title and no cartesian grid
-  theme_minimal() +
-  theme(
-    axis.text = element_text(angle = 90),
-    axis.title = element_blank(),
-    panel.grid = element_blank(),
-    #plot.margin = unit(rep(-2,4), "cm")     # This remove unnecessary margin around plot
-  )
+    theme_minimal() +
+   theme(
+     axis.text = element_text(angle = 90),
+     axis.title = element_blank(),
+     panel.grid = element_blank(),
+   )
+    return(value_plot)
+  }
 
-value_plot
-
-tax_plot <- ggplot(Graph_norm_tax, aes(fill = value_type, x = country, y = as.numeric(value))) +
-  
-  # This add the bars with a blue color
-  geom_bar(stat = "identity", position = "dodge") +
-  
-  # Custom the theme: no axis title and no cartesian grid
-  theme_minimal() +
-  theme(
-    axis.text = element_text(angle = 90),
-    axis.title = element_blank(),
-    panel.grid = element_blank(),
-    #plot.margin = unit(rep(-2,4), "cm")     # This remove unnecessary margin around plot
-  )
-
-tax_plot
+Create_normal_graphs(Graph_norm_data)
+Create_normal_graphs(Graph_norm_tax)
 
 str(Graph_norm_data)
 
