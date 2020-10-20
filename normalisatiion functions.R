@@ -22,7 +22,8 @@ Efctve_tax <- Tax_aligned %>%
 Efctve_rate <- merge(Efctve_rev, Efctve_tax, all = T)
 Efctve_rate <- mutate(Efctve_rate, effective_rate = country_tax/country_rev)
 
-Efctve_rate <- Efctve_rate[effective_rate > 0]
+Efctve_rate <- Efctve_rate%>%
+  dplyr::filter(effective_rate > 0 & effective_rate < "Inf")
 
 
 ################################ Revenue Normalisation ############################################### 
@@ -192,10 +193,10 @@ Graph_norm_tax <- prep_norm_data(Normal_rev, norm_rev, normal_tax, "2018",
 
 
 
-p <- ggplot(Graph_norm_data, aes(fill = condition, x = country, y = as.numeric(normalized_value))) +
+p <- ggplot(Graph_norm_data, aes(fill = value_type, x = country, y = as.numeric(value))) +
   
   # This add the bars with a blue color
-  geom_bar(stat = "identity", fill=alpha("green", 0.8)) +
+  geom_bar(stat = "identity", position = "dodge") +
   
   # Custom the theme: no axis title and no cartesian grid
   theme_minimal() +
