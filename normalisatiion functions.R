@@ -144,5 +144,69 @@ Normal_tax <-Tax_aligned[, c("company", "country", "year",
 Normal_tax <- merge(Normal_tax, real_rates, all.x = T, by = c("country", "year"))
 
 Normal_tax <- Normal_tax %>%
-  mutate(real_tax_eur = pbt_eur * rate / 100)
+  mutate(normal_real_tax = pbt_eur * rate / 100)
+
+Normal_tax <- Normal_tax[normal_real_tax > 0]
+
+######################################Preparing data for graphing ###############################
+
+prep_norm_data <- function(data, input, tax, year_val, orig_input, orig_tax, tax_or_val){
+  input = enquo(arg = input)
+  tax = enquo(arg = tax)
+  orig_input = enquo(arg = orig_input)
+  orig_tax = enquo(arg = orig_tax)
+  
+  
+  Graph_norm_data <- data %>%
+    group_by(country, year) %>%
+    summarize(normalized_value = sum(!!input, na.rm = T), normalized_tax = sum(!!tax, na.rm = T), 
+              original_value = sum(!!orig_input, na.rm = T), original_tax = sum(!!orig_tax, na.rm = T)) %>%
+    dplyr::filter(year == year_val)
+  Graph_value <- gather(Graph_norm_data, key = "value_type", value = "value",
+                        normalized_value,
+                        original_value,
+                        na.rm = F) 
+  Graph_value <- Graph_value[, c("country", "value_type", "value")]
+  Graph_tax <- gather(Graph_norm_data, key = "value_type", value = "value",
+                        normalized_tax,
+                        original_tax,
+                        na.rm = F) 
+  Graph_tax <- Graph_tax[, c("country", "value_type", "value")]
+  if(tax_or_val == "tax"){
+    return(Graph_tax)} else{
+      return(Graph_value)
+    } 
+}
+
+
+
+Graph_norm_data <- prep_norm_data(Normal_rev, norm_rev, normal_tax, "2018", 
+                                  revenue_eur, tax_for_the_year_eur, tax_or_val = "val")
+
+Graph_norm_tax <- prep_norm_data(Normal_rev, norm_rev, normal_tax, "2018", 
+                                 revenue_eur, tax_for_the_year_eur, tax_or_val = "tax")
+
+
+###################################### Graphing ##################################################
+
+
+
+
+p <- ggplot(Graph_norm_data, aes(fill = condition, x = country, y = as.numeric(normalized_value))) +
+  
+  # This add the bars with a blue color
+  geom_bar(stat = "identity", fill=alpha("green", 0.8)) +
+  
+  # Custom the theme: no axis title and no cartesian grid
+  theme_minimal() +
+  theme(
+    axis.text = element_text(angle = 90),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    #plot.margin = unit(rep(-2,4), "cm")     # This remove unnecessary margin around plot
+  )
+
+p
+
+str(Graph_norm_data)
 
