@@ -1,14 +1,5 @@
-install.packages("naniar")
-install.packages("heatmaply")
-install.packages("reshape")
-install.packages("plotly")
-
 library(naniar)
-library(ggplot2)
-library(heatmaply)
-library(dplyr)
 library(reshape)
-library(tidyr)
 library(data.table)
 
 

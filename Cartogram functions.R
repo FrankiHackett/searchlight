@@ -1,13 +1,5 @@
-install.packages("cartogram")
-install.packages("maptools")
-install.packages("rgeos")
-install.packages("tibble")
-install.packages("sf")
-install.packages("tidyverse")
-install.packages("mapproj")
-install.packages("tmap")
-install.packages("mosaic")
-install.packages("latticeExtra")
+install.packages("rgdal")
+
 
 library(cartogram)
 library(rgeos)
@@ -20,6 +12,7 @@ library(mapproj)
 library(tmap)
 library(mosaic)
 library(latticeExtra)
+library(rgdal)
 
 
 
@@ -112,3 +105,30 @@ tax_coords[is.na(tax_coords)] <- 10
 tax_cart <- cartogram(tax_coords, "sum_variable")
 
 spplot(tax_coords, "sum_variable")
+
+
+afr <- spTransform(wrld_simpl[wrld_simpl$REGION==2 & wrld_simpl$POP2005 > 0,], 
+                   CRS("+init=epsg:3395"))
+
+# Create cartogram
+afr_carto <- cartogram_cont(afr, "POP2005", 3)
+
+# Plot 
+par(mfcol=c(1,2))
+plot(afr, main="original")
+plot(afr_carto, main="distorted (sp)")
+
+# Same with sf objects
+library(sf)
+
+afr_sf = st_as_sf(afr)
+
+afr_sf_carto <- cartogram_cont(afr_sf, "POP2005", 3)
+
+# Plot 
+par(mfcol=c(1,3))
+plot(afr, main="original")
+plot(afr_carto, main="distorted (sp)")
+plot(st_geometry(afr_sf_carto), main="distorted (sf)")
+
+# }
