@@ -93,7 +93,9 @@ world_map <- ne_countries(returnclass = "sf")
 world_map = world_map %>% 
     select(sovereignt) %>% 
     filter(sovereignt != "Antarctica") %>% 
-    st_transform(world_map, crs = "+proj=robin")
+    st_transform(world_map, crs = "+proj=cea")
+
+
 
 
 names(world_map)[names(world_map) == "sovereignt"] <- "NAME"
@@ -116,8 +118,8 @@ wrld_simpl_tax <- left_join(world_map, rev_sum, by = "NAME") %>%
 
 ##This does not work yet
 
-tax_cart <- cartogram_cont(tax_coords, "sum_variable", 3)
+tax_cart <- cartogram_cont(wrld_simpl_tax, "sum_variable", 10)
 
-plot(tax_coords, "sum_variable")
+plot(tax_cart["sum_variable"])
 
 
