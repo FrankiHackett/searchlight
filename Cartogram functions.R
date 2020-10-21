@@ -1,4 +1,6 @@
 install.packages("rgdal")
+install.packages("spatialEco")
+install.packages("rnaturalearth")
 
 
 library(cartogram)
@@ -13,6 +15,8 @@ library(tmap)
 library(mosaic)
 library(latticeExtra)
 library(rgdal)
+library(spatialEco)
+library(rnaturalearth)
 
 
 
@@ -59,20 +63,21 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 ########################## Sum by country function ###############################################
 
 
- sum_country <- function(dataset, variable){
+ sum_country <- function(dataset, variable, year_val){
    variable = enquo(arg = variable)
    
    Tax_summarised <- dataset %>%
-     group_by(NAME) %>%
+     group_by(NAME, year) %>%
      summarise(sum_variable = sum(!!variable, na.rm = T))
-   sum_variable <- merge(dataset, Tax_summarised, by = "NAME", all = T) 
-  # names(sum_variable)[names(sum_variable) == "v1"] <- "variable_sum"
-   sum_variable <- dplyr::distinct(sum_variable, NAME, sum_variable)
+   sum_variable <- merge(dataset, Tax_summarised, by = c("NAME", "year"), all = T, allow.cartesian = T) 
+   names(sum_variable)[names(sum_variable) == "v1"] <- "variable_sum"
+   sum_variable <- dplyr::distinct(sum_variable, NAME, year, sum_variable)
    sum_variable[is.na(sum_variable)] <- 0
+   sum_variable <- dplyr::filter(sum_variable, year == year_val)
    return(sum_variable)
  }
 
- rev_sum <- sum_country(Tax_to_map, revenue_eur) #example for revenue
+ rev_sum <- sum_country(Tax_to_map, revenue_eur, "2018") #example for revenue
 
 
 
@@ -83,52 +88,36 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 # This needs to be functionalised 
 
 
-wrld_simpl_tax <- wrld_simpl
+world_map <- ne_countries(returnclass = "sf")
+ 
+world_map = world_map %>% 
+    select(sovereignt) %>% 
+    filter(sovereignt != "Antarctica") %>% 
+    st_transform(world_map, crs = "+proj=robin")
+
+
+names(world_map)[names(world_map) == "sovereignt"] <- "NAME"
+ 
+wrld_simpl_tax <- left_join(world_map, rev_sum, by = "NAME") %>%
+   na.omit()
 
 
 
-wrld_simpl_tax@data <- sp::merge(wrld_simpl_tax@data, rev_sum, by = "NAME", all = TRUE)
+#wrld_simpl_tax@data <- sp::merge(wrld_simpl_tax@data, rev_sum, by = "NAME", all = TRUE)
 
-ws_tax_no <- st_as_sf(wrld_simpl_tax)
-st_crs(ws_tax_no)
+#tax_coords <- sp.na.omit(wrld_simpl_tax, margin = 1)
 
-tax_coords <- st_transform(ws_tax_no, crs = 4088)
-st_crs(tax_coords)
+#tax_coords <- st_transform(wrld_simpl_tax, CRS("+proj=robin"))
 
-tax_coords[is.na(tax_coords)] <- 10
+# tax_coords[is.na(tax_coords)] <- 10
 
 
 ######################### Mapping ##########################################
 
 ##This does not work yet
 
-tax_cart <- cartogram(tax_coords, "sum_variable")
+tax_cart <- cartogram_cont(tax_coords, "sum_variable", 3)
 
-spplot(tax_coords, "sum_variable")
+plot(tax_coords, "sum_variable")
 
 
-afr <- spTransform(wrld_simpl[wrld_simpl$REGION==2 & wrld_simpl$POP2005 > 0,], 
-                   CRS("+init=epsg:3395"))
-
-# Create cartogram
-afr_carto <- cartogram_cont(afr, "POP2005", 3)
-
-# Plot 
-par(mfcol=c(1,2))
-plot(afr, main="original")
-plot(afr_carto, main="distorted (sp)")
-
-# Same with sf objects
-library(sf)
-
-afr_sf = st_as_sf(afr)
-
-afr_sf_carto <- cartogram_cont(afr_sf, "POP2005", 3)
-
-# Plot 
-par(mfcol=c(1,3))
-plot(afr, main="original")
-plot(afr_carto, main="distorted (sp)")
-plot(st_geometry(afr_sf_carto), main="distorted (sf)")
-
-# }
