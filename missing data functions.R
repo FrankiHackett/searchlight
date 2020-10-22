@@ -38,8 +38,9 @@ Missing_data$number_of_employees[is.na(Missing_data$number_of_employees)] <- 0
 
 Missing_data$company_country <- paste(Missing_data$year, Missing_data$company, Missing_data$country, sep = " - ")
 
-Missing_data$all_data <- paste(Missing_data$corporation_taxes_original_currency, Missing_data$revenue, 
-                             Missing_data$pbt, Missing_data$number_of_employees)
+Missing_data <- Missing_data %>%
+  mutate(all_data = (corporation_taxes_original_currency * revenue) 
+                             * (pbt * number_of_employees))
 
 Missing_data$company <-NULL
 Missing_data$country <-NULL
@@ -50,30 +51,35 @@ Pivot_missing <- gather(Missing_data, key = value_type, value = "value",
                         revenue,
                         pbt,
                         number_of_employees, 
-                     #   all_data,
+                        all_data,
                         na.rm = FALSE)
 
-##Creating filter functions
+##Creating filter function
 
-Missing_2017 <- Pivot_missing[grep("2017", Pivot_missing$company_country),]
-Missing_2018 <- Pivot_missing[grep("2018", Pivot_missing$company_country),]
-Missing_2019 <- Pivot_missing[grep("2019", Pivot_missing$company_country),]
-Missing_2020 <- Pivot_missing[grep("2020", Pivot_missing$company_country),]
 
+Filter_missing <- function(value){
+  Filtered_missing <- Pivot_missing[grep(value, Pivot_missing$company_country),]
+  return(Filtered_missing)
+}
+
+
+
+Missing_France <- Filter_missing("Argentina")
 
 
 
 #using ggplot2 to build heatmap
 
-ggplot(Pivot_missing, aes(x= value_type, y = company_country,
+
+ggplot(Missing_France, aes(x= value_type, y = company_country,
                          fill = value)) +
-  geom_raster() +
+  geom_tile(aes(height = 1)) +
   theme(axis.text.x = element_text(
     angle = 90,
     face = 1
   ), legend.position = "none", 
   axis.text.y = element_text(
-    size = 2
+    size = 10
   )
   ) 
 
