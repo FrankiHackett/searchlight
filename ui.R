@@ -3,37 +3,53 @@ library(shinythemes)
 library(shinyWidgets)
 library(extrafont)
 
-font_import()
+# font_import()
 
 ui <- navbarPage("Website",
                 tabPanel("Missing data", 
-                          fluidPage(
+                         modalDialog(div(intro_text, style = "font-size:160%"),
+                           title = "Welcome!",
+                           footer = modalButton("Let's go!"),
+                           size =  "l",
+                           easyClose = FALSE,
+                           fade = TRUE
+                         ),
+                          sidebarLayout(
                             setBackgroundColor(color = "#05234F"),
                             fluidRow(
-                              column(8, "Missing data graphic",
-                                     style = "color: #dbd1d2;"),
-                              column(4, "sidey sidey side", 
-                                     style = "background-color: #dbd1d2;"))
+                              sidebarPanel(style = "background-color: #dbd1d2;",
+                                           textInput("filter", "Filter", "2019")),
+                              mainPanel(style = "color: #dbd1d2;",
+                                     plotOutput("missing_plot", height = 1000)))
                           )
                  ),
                  tabPanel("Maps",
-                          fluidPage(
+                          sidebarLayout(
                             setBackgroundColor(color = "#05234F"),
                             fluidRow(
-                              column(8, "Maps go here",
-                                     style = "color: #dbd1d2;"),
-                              column(4, "sidey sidey side",
-                                     style = "background-color: #dbd1d2;"))
+                              sidebarPanel(style = "color: #dbd1d2;",
+                                           selectInput("focus", "Variable:", 
+                                                     choices = names(Tax_to_map)),
+                                           textInput("year", "Year:", "2018")),
+                              mainPanel(style = "background-color: #dbd1d2;",
+                                        plotOutput("cartogram", height = 1000)))
                           )
                  ),
                  tabPanel("Normalization",
-                          fluidPage(
+                          sidebarLayout(
                             setBackgroundColor(color = "#05234F"),
                             fluidRow(
-                              column(8, "Normalism",
-                                     style = "color: #dbd1d2;"),
-                              column(4, "sidey sidey side",
-                                     style = "background-color: #dbd1d2;"))
+                              sidebarPanel(style = "color: #dbd1d2;",
+                                           selectInput("parameter", "Parameter:", 
+                                                       choices = c("Revenue", "Profit")),
+                                           selectInput("taxtype", "Real of Effective Tax rate?", 
+                                                       choices = c("Real", "Effective")),
+                                           selectInput("year", "Year:", 
+                                                       choices = c("2017", "2018", "2019", "2020")),
+                                           actionButton("show_graphs", "Show me my graphs")),
+                              mainPanel(style = "background-color: #dbd1d2;",
+                                           plotOutput("normalplot"),
+                                        plotOutput("tax_plot")))
                           )
                  ),
                  
@@ -66,6 +82,58 @@ ui <- navbarPage("Website",
 
 server <- function(input, output, 
                    session){
+  #######Missing data outputs
+  output$missing_plot <- renderPlot({
+    missingPlot(input$filter)
+    })
+  
+  
+  ######Cartogram outputs
+  output$cartogram <- renderPlot({
+    carto_funct(input$focus, input$year)
+  })
+  
+  
+  #####Normalisation outputs
+  
+  norm_outputs <- eventReactive(input$show_graphs, {
+  
+  if(input$parameter == "Revenue"){
+    norm_data <- Normal_rev
+    norm_input <-norm_rev
+    norm_constant <- revenue_eur
+  } else{
+    if(input$parameter == "Profit"){
+      norm_data <- Normal_prof
+      norm_input <-norm_prof
+      norm_constant <- pbt_eur
+    } else{
+      norm_data <- Normal_tax
+      norm_input <-normal_real_tax
+      norm_constant <- tax_for_the_year_eur
+    }
+    }
+  
+  if(input$taxtype == "Real"){
+    taxtype <- normal_real_tax
+  } else {
+    taxtype <- normal_tax
+  }
+  
+  parameter_plot <- Graph_norm_data(norm_data, norm_input, taxtype, input$year,
+                                    norm_constant, tax_for_the_year_eur, "val")
+  
+  tax_plot <- Graph_norm_data(norm_data, norm_input, taxtype, input$year,
+                              norm_constant, tax_for_the_year_eur, "tax")
+  
+  
+  
+  output$normalplot <- renderPlot({parameter_plot})
+  
+  output$tax_plot <- renderPlot({tax_plot})
+  }
+  )
+  
   
 }
 

@@ -1,8 +1,3 @@
-install.packages("rgdal")
-install.packages("spatialEco")
-install.packages("rnaturalearth")
-
-
 library(cartogram)
 library(rgeos)
 library(maptools)
@@ -63,63 +58,36 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 ########################## Sum by country function ###############################################
 
 
- sum_country <- function(dataset, variable, year_val){
+ carto_funct <- function(variable, year_val){
    variable = enquo(arg = variable)
    
-   Tax_summarised <- dataset %>%
+   Tax_summarised <- Tax_to_map %>%
      group_by(NAME, year) %>%
      summarise(sum_variable = sum(!!variable, na.rm = T))
-   sum_variable <- merge(dataset, Tax_summarised, by = c("NAME", "year"), all = T, allow.cartesian = T) 
+   sum_variable <- merge(Tax_to_map, Tax_summarised, by = c("NAME", "year"), all = T, allow.cartesian = T) 
    names(sum_variable)[names(sum_variable) == "v1"] <- "variable_sum"
    sum_variable <- dplyr::distinct(sum_variable, NAME, year, sum_variable)
    sum_variable[is.na(sum_variable)] <- 0
    sum_variable <- dplyr::filter(sum_variable, year == year_val)
-   return(sum_variable)
- }
 
- rev_sum <- sum_country(Tax_to_map, revenue_eur, "2018") #example for revenue
-
-
-
-
-
-
-######################### Binding to geoshapes and transforming into sf shape ################################
-# This needs to be functionalised 
-
-
-world_map <- ne_countries(returnclass = "sf")
+   world_map <- ne_countries(returnclass = "sf") # Binding to geoshapes and transforming into sf shape ##
  
-world_map = world_map %>% 
+   world_map = world_map %>% 
     select(sovereignt) %>% 
     filter(sovereignt != "Antarctica") %>% 
     st_transform(world_map, crs = "+proj=cea")
 
-
-
-
-names(world_map)[names(world_map) == "sovereignt"] <- "NAME"
+   names(world_map)[names(world_map) == "sovereignt"] <- "NAME"
  
-wrld_simpl_tax <- left_join(world_map, rev_sum, by = "NAME") %>%
+   wrld_simpl_tax <- left_join(world_map, sum_variable, by = "NAME") %>%
    na.omit()
+   
+ 
+   tax_cart <- cartogram_cont(wrld_simpl_tax, "sum_variable", 5) # Mapping #
+   plot(tax_cart["sum_variable"]) 
+   }
 
 
 
-#wrld_simpl_tax@data <- sp::merge(wrld_simpl_tax@data, rev_sum, by = "NAME", all = TRUE)
-
-#tax_coords <- sp.na.omit(wrld_simpl_tax, margin = 1)
-
-#tax_coords <- st_transform(wrld_simpl_tax, CRS("+proj=robin"))
-
-# tax_coords[is.na(tax_coords)] <- 10
-
-
-######################### Mapping ##########################################
-
-##This does not work yet
-
-tax_cart <- cartogram_cont(wrld_simpl_tax, "sum_variable", 10)
-
-plot(tax_cart["sum_variable"])
-
+carto_funct(revenue_eur, 2018)
 

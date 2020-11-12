@@ -1,6 +1,7 @@
 library(naniar)
 library(reshape)
 library(data.table)
+library(plotly)
 
 
 
@@ -54,34 +55,29 @@ Pivot_missing <- gather(Missing_data, key = value_type, value = "value",
                         all_data,
                         na.rm = FALSE)
 
-##Creating filter function
 
 
-Filter_missing <- function(value){
+
+##Creating filter and plot function 
+
+
+missingPlot <- function(value){
   Filtered_missing <- Pivot_missing[grep(value, Pivot_missing$company_country),]
-  return(Filtered_missing)
-}
-
-
-
-Missing_France <- Filter_missing("Argentina")
-
-
-
-#using ggplot2 to build heatmap
-
-
-ggplot(Missing_France, aes(x= value_type, y = company_country,
+  missing_plot <- ggplot(Filtered_missing, aes(x= value_type, y = company_country,
                          fill = value)) +
-  geom_tile(aes(height = 1)) +
-  theme(axis.text.x = element_text(
-    angle = 90,
-    face = 1
-  ), legend.position = "none", 
-  axis.text.y = element_text(
-    size = 10
-  )
-  ) 
+     geom_tile(aes(height = 1)) +
+     theme(axis.text.x = element_text(
+        face = 1
+     ), legend.position = "none", 
+     axis.text.y = element_text(
+       size = 10
+     )
+    )
+  return(missing_plot)
+  }
+
+missingPlot("China")
 
 
+names(Tax_to_map)
   
