@@ -89,5 +89,5 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
 
 
 
-carto_funct(revenue_eur, 2018)
+# carto_funct(revenue_eur, 2018)
 

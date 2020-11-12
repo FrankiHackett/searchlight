@@ -5,6 +5,12 @@ library(extrafont)
 
 # font_import()
 
+source("Data cleansing.R")
+source("Cartogram functions.R")
+source("missing data functions.R")
+source("normalisatiion functions.R")
+source("website_text.R")
+
 ui <- navbarPage("Website",
                 tabPanel("Missing data", 
                          modalDialog(div(intro_text, style = "font-size:160%"),
@@ -48,8 +54,9 @@ ui <- navbarPage("Website",
                                                        choices = c("2017", "2018", "2019", "2020")),
                                            actionButton("show_graphs", "Show me my graphs")),
                               mainPanel(style = "background-color: #dbd1d2;",
-                                           plotOutput("normalplot"),
-                                        plotOutput("tax_plot")))
+                                          # plotOutput("normalplot"),
+                                      #  plotOutput("tax_plot")),
+                                      textOutput("testing")))
                           )
                  ),
                  
@@ -96,7 +103,7 @@ server <- function(input, output,
   
   #####Normalisation outputs
   
-  norm_outputs <- eventReactive(input$show_graphs, {
+#  norm_outputs <- eventReactive(input$show_graphs, {
   
   if(input$parameter == "Revenue"){
     norm_data <- Normal_rev
@@ -126,13 +133,13 @@ server <- function(input, output,
   tax_plot <- Graph_norm_data(norm_data, norm_input, taxtype, input$year,
                               norm_constant, tax_for_the_year_eur, "tax")
   
+ # })  
+  
+ output$normalplot <- renderPlot({parameter_plot})
+  
+ output$tax_plot <- renderPlot({tax_plot})
   
   
-  output$normalplot <- renderPlot({parameter_plot})
-  
-  output$tax_plot <- renderPlot({tax_plot})
-  }
-  )
   
   
 }
