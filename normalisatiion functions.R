@@ -96,7 +96,8 @@ Company_profs <- Tax_aligned %>%
 
 Company_profs <- mutate(Company_profs, prof_marg = comp_rev / comp_profit)
 
-Company_profs <- Company_profs[prof_marg > 0]
+Company_profs <- Company_profs %>%
+  dplyr::filter(prof_marg > 0)
 
 
 
@@ -160,8 +161,8 @@ prep_norm_data <- function(data, input, tax, year_val, orig_input, orig_tax, tax
   
   Graph_norm_data <- data %>%
     group_by(country, year) %>%
-    summarize(normalized_value = sum(!!input, na.rm = T), normalized_tax = sum(!!tax, na.rm = T), 
-              original_value = sum(!!orig_input, na.rm = T), original_tax = sum(!!orig_tax, na.rm = T)) %>%
+    summarize(normalized_value = base::sum(!!input, na.rm = T), normalized_tax = base::sum(!!tax, na.rm = T), 
+              original_value = base::sum(!!orig_input, na.rm = T), original_tax = base::sum(!!orig_tax, na.rm = T)) %>%
     dplyr::filter(year == year_val)
   Graph_value <- gather(Graph_norm_data, key = "value_type", value = "value",
                         normalized_value,

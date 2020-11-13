@@ -54,10 +54,9 @@ ui <- navbarPage("Website",
                                                        choices = c("2017", "2018", "2019", "2020")),
                                            actionButton("show_graphs", "Show me my graphs")),
                               mainPanel(style = "background-color: #dbd1d2;",
-                                          # plotOutput("normalplot"),
-                                      #  plotOutput("tax_plot")),
-                                      textOutput("testing")))
-                          )
+                                           plotOutput("normalplot"),
+                                        plotOutput("tax_plot"))
+                          ))
                  ),
                  
                  tags$style(HTML(" 
@@ -103,45 +102,83 @@ server <- function(input, output,
   
   #####Normalisation outputs
   
-#  norm_outputs <- eventReactive(input$show_graphs, {
+  norm_data <- reactive({
   
   if(input$parameter == "Revenue"){
-    norm_data <- Normal_rev
-    norm_input <-norm_rev
-    norm_constant <- revenue_eur
-  } else{
-    if(input$parameter == "Profit"){
+    norm_data <- Normal_rev 
+    }
+    else if (input$parameter == "Profit"){
       norm_data <- Normal_prof
-      norm_input <-norm_prof
-      norm_constant <- pbt_eur
-    } else{
+    }
+     else {
       norm_data <- Normal_tax
-      norm_input <-normal_real_tax
-      norm_constant <- tax_for_the_year_eur
     }
-    }
+  })
   
-  if(input$taxtype == "Real"){
-    taxtype <- normal_real_tax
-  } else {
-    taxtype <- normal_tax
+
+  norm_input <- reactive({
+    
+    if(input$parameter == "Revenue"){
+      norm_input <- norm_rev
+    }
+    else if (input$parameter == "Profit"){
+        norm_input <- norm_prof
+      }
+     else {
+      norm_input <- normal_real_tax
+    }
+ })
+  
+  
+  norm_constant <- reactive({
+    
+    
+    if(input$parameter == "Revenue"){
+      norm_input <- revenue_eur
+    }
+    else if (input$parameter == "Profit"){
+        norm_input <- pbt_eur
+      }
+     else {
+      norm_input <- tax_for_the_year_eur
+    }
+  })
+  
+  
+  taxtype <- reactive({
+    
+    if(input$taxtype == "Real"){
+      taxtype <- normal_real_tax
+    } 
+    else {
+      taxtype <- normal_tax
   }
+  })
+
+ # norm_data <- as.character(norm_data)
+ # norm_data <- as.character(norm_input)
+ # norm_input <- as.character(norm_input)
+ # taxtype <- as.character(taxtype)
+    
+
+  output$normalplot <- eventReactive(input$show_revenue_graph, {        
   
-  parameter_plot <- Graph_norm_data(norm_data, norm_input, taxtype, input$year,
+    parameter_plot <- prep_norm_data(norm_data, norm_input, taxtype, input$year,
                                     norm_constant, tax_for_the_year_eur, "val")
-  
-  tax_plot <- Graph_norm_data(norm_data, norm_input, taxtype, input$year,
-                              norm_constant, tax_for_the_year_eur, "tax")
-  
- # })  
-  
- output$normalplot <- renderPlot({parameter_plot})
-  
- output$tax_plot <- renderPlot({tax_plot})
-  
-  
-  
-  
+    
+    renderPlot({Create_normal_graphs(parameter_plot)})
+  })
+    
+    
+   output$tax_plot <- reactive({ 
+     
+     tax_plot <- prep_norm_data(norm_data, norm_input, taxtype, input$year,
+                                    norm_constant, tax_for_the_year_eur, "tax")
+     
+     renderPlot({Create_normal_graphs(tax_plot)})
+  })
+   
+   
 }
 
 shinyApp(ui, server)
