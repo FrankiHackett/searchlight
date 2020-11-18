@@ -26,7 +26,8 @@ ui <- navbarPage("Website",
                               sidebarPanel(style = "background-color: #dbd1d2;",
                                            textInput("filter", "Filter", "2019")),
                               mainPanel(style = "color: #dbd1d2;",
-                                     plotOutput("missing_plot", height = 1000)))
+                                     plotOutput("missing_plot", height = 1000, 
+                                                hover = hoverOpts(id="plot_hover"))))
                           )
                  ),
                  tabPanel("Maps",

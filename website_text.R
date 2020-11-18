@@ -17,7 +17,7 @@ which means that different companies prepare the data in different ways, cover d
 different approaches to deciding where some activities take place. You can find a fuller list of problems with the 
 data elsewhere on this site. <br> <br>
 
-The first problem with the data is what is available. So let’s start with that…")
+The first problem with the data is what is available. So let's start with that...")
 
 
 
@@ -27,3 +27,11 @@ about_data <- "Here is some stuff about how crappy this data is
 
 
 I wonder if returns are accepted here?"
+
+
+
+
+
+
+
+
