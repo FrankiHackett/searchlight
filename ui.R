@@ -2,6 +2,7 @@ library(shiny)
 library(shinythemes)
 library(shinyWidgets)
 library(extrafont)
+library(shinyjs)
 
 # font_import()
 
@@ -103,82 +104,65 @@ server <- function(input, output,
   
   #####Normalisation outputs
   
-  norm_data <- reactive({
-  
-  if(input$parameter == "Revenue"){
-    norm_data <- Normal_rev 
-    }
-    else if (input$parameter == "Profit"){
-      norm_data <- Normal_prof
-    }
-     else {
-      norm_data <- Normal_tax
-    }
-  })
-  
 
-  norm_input <- reactive({
-    
-    if(input$parameter == "Revenue"){
-      norm_input <- norm_rev
-    }
-    else if (input$parameter == "Profit"){
-        norm_input <- norm_prof
-      }
-     else {
-      norm_input <- normal_real_tax
-    }
- })
   
   
-  norm_constant <- reactive({
+  output$normalplot <- reactive(#input$show_graphs, 
+                                {    
+    real_rev_plot <- prep_norm_data(Normal_rev, norm_rev, normal_real_tax, input$year,
+                                    revenue_eur, tax_for_the_year_eur, "val")
+    
+   # effect_rev_plot <-  prep_norm_data(Normal_rev, norm_rev, normal_tax, input$year,
+   #                                    revenue_eur, tax_for_the_year_eur, "val")
+    
+    real_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_real_tax, input$year,
+                                     pbt_eur, tax_for_the_year_eur, "val")
     
     
-    if(input$parameter == "Revenue"){
-      norm_input <- revenue_eur
-    }
-    else if (input$parameter == "Profit"){
-        norm_input <- pbt_eur
-      }
-     else {
-      norm_input <- tax_for_the_year_eur
-    }
-  })
+  #  effect_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_tax, input$year,
+  #                                     pbt_eur, tax_for_the_year_eur, "val")
   
-  
-  taxtype <- reactive({
-    
-    if(input$taxtype == "Real"){
-      taxtype <- normal_real_tax
-    } 
-    else {
-      taxtype <- normal_tax
-  }
-  })
-
- # norm_data <- as.character(norm_data)
- # norm_data <- as.character(norm_input)
- # norm_input <- as.character(norm_input)
- # taxtype <- as.character(taxtype)
-    
-
-  output$normalplot <- eventReactive(input$show_revenue_graph, {        
-  
-    parameter_plot <- prep_norm_data(norm_data, norm_input, taxtype, input$year,
-                                    norm_constant, tax_for_the_year_eur, "val")
-    
-    renderPlot({Create_normal_graphs(parameter_plot)})
+ #   if(input$parameter == "Revenue"){
+      
+    renderPlot({Create_normal_graphs(real_rev_plot)})
+  #  }
+  #  else if(input$parameter == "Profit"){
+  #    renderPlot({Create_normal_graphs(real_prof_plot)})
+  #  }
   })
     
     
-   output$tax_plot <- reactive({ 
+   output$tax_plot <- eventReactive(input$show_graphs, { 
+     real_rev_plot <- prep_norm_data(Normal_rev, norm_rev, normal_real_tax, input$year,
+                                     revenue_eur, tax_for_the_year_eur, "val")
      
-     tax_plot <- prep_norm_data(norm_data, norm_input, taxtype, input$year,
-                                    norm_constant, tax_for_the_year_eur, "tax")
+     effect_rev_plot <-  prep_norm_data(Normal_rev, norm_rev, normal_tax, input$year,
+                                        revenue_eur, tax_for_the_year_eur, "val")
      
-     renderPlot({Create_normal_graphs(tax_plot)})
-  })
-   
+     real_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_real_tax, input$year,
+                                      pbt_eur, tax_for_the_year_eur, "tax")
+     
+     
+     effect_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_tax, input$year,
+                                        pbt_eur, tax_for_the_year_eur, "tax")
+     
+   #  if(input$parameter =="Revenue" & input$taxtype == "Real"){
+     
+     renderPlot({Create_normal_graphs(real_rev_plot)})
+   #  }
+   #  else if(input$parameter =="Revenue" & input$taxtype == "Effective"){
+       
+   #    renderPlot({Create_normal_graphs(effect_rev_plot)})
+   #  }
+   #  else if(input$parameter =="Profit" & input$taxtype == "Real"){
+       
+   #    renderPlot({Create_normal_graphs(real_prof_plot)})
+   #  }
+   #  else if(input$parameter =="Profit" & input$taxtype == "Effective"){
+       
+   #    renderPlot({Create_normal_graphs(real_rev_plot)})
+    # }
+     })
    
 }
 
