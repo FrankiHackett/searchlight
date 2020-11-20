@@ -107,37 +107,31 @@ server <- function(input, output,
 
   
   
-  output$normalplot <- reactive(#input$show_graphs, 
-                                {    
+  normalplot <- eventReactive(input$show_graphs, {    
     real_rev_plot <- prep_norm_data(Normal_rev, norm_rev, normal_real_tax, input$year,
                                     revenue_eur, tax_for_the_year_eur, "val")
     
-   # effect_rev_plot <-  prep_norm_data(Normal_rev, norm_rev, normal_tax, input$year,
-   #                                    revenue_eur, tax_for_the_year_eur, "val")
     
-    real_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_real_tax, input$year,
-                                     pbt_eur, tax_for_the_year_eur, "val")
+    real_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_real_tax, input$year, 
+                                     pbt_eur, tax_for_the_year_eur, tax_or_val = "val")
     
-    
-  #  effect_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_tax, input$year,
-  #                                     pbt_eur, tax_for_the_year_eur, "val")
-  
- #   if(input$parameter == "Revenue"){
-      
-    renderPlot({Create_normal_graphs(real_rev_plot)})
-  #  }
-  #  else if(input$parameter == "Profit"){
-  #    renderPlot({Create_normal_graphs(real_prof_plot)})
-  #  }
+    if(input$parameter == "Revenue"){
+   Create_normal_graphs(real_rev_plot)
+    }
+    else {
+      Create_normal_graphs(real_prof_plot)
+    }
   })
+  
+  output$normalplot <- renderPlot({normalplot()})
     
     
-   output$tax_plot <- eventReactive(input$show_graphs, { 
+   tax_plot <- eventReactive(input$show_graphs, { 
      real_rev_plot <- prep_norm_data(Normal_rev, norm_rev, normal_real_tax, input$year,
-                                     revenue_eur, tax_for_the_year_eur, "val")
+                                     revenue_eur, tax_for_the_year_eur, "tax")
      
      effect_rev_plot <-  prep_norm_data(Normal_rev, norm_rev, normal_tax, input$year,
-                                        revenue_eur, tax_for_the_year_eur, "val")
+                                        revenue_eur, tax_for_the_year_eur, "tax")
      
      real_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_real_tax, input$year,
                                       pbt_eur, tax_for_the_year_eur, "tax")
@@ -146,23 +140,25 @@ server <- function(input, output,
      effect_prof_plot <- prep_norm_data(Normal_prof, norm_prof, normal_tax, input$year,
                                         pbt_eur, tax_for_the_year_eur, "tax")
      
-   #  if(input$parameter =="Revenue" & input$taxtype == "Real"){
+     if(input$parameter =="Revenue" & input$taxtype == "Real"){
      
-     renderPlot({Create_normal_graphs(real_rev_plot)})
-   #  }
-   #  else if(input$parameter =="Revenue" & input$taxtype == "Effective"){
+     Create_normal_graphs(real_rev_plot)
+     }
+     else if(input$parameter =="Revenue" & input$taxtype == "Effective"){
        
-   #    renderPlot({Create_normal_graphs(effect_rev_plot)})
-   #  }
-   #  else if(input$parameter =="Profit" & input$taxtype == "Real"){
+       Create_normal_graphs(effect_rev_plot)
+     }
+     else if(input$parameter =="Profit" & input$taxtype == "Real"){
        
-   #    renderPlot({Create_normal_graphs(real_prof_plot)})
-   #  }
-   #  else if(input$parameter =="Profit" & input$taxtype == "Effective"){
+      Create_normal_graphs(real_prof_plot)
+     }
+     else if(input$parameter =="Profit" & input$taxtype == "Effective"){
        
-   #    renderPlot({Create_normal_graphs(real_rev_plot)})
-    # }
+       Create_normal_graphs(real_rev_plot)
+     }
      })
+   
+   output$tax_plot <- renderPlot({tax_plot()})
    
 }
 

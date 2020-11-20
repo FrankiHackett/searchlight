@@ -182,11 +182,12 @@ prep_norm_data <- function(data, input, tax, year_val, orig_input, orig_tax, tax
 
 
 
-Graph_norm_data <- prep_norm_data(Normal_rev, norm_rev, normal_tax, "2018", 
-                                  revenue_eur, tax_for_the_year_eur, tax_or_val = "val")
+Graph_norm_data <- prep_norm_data(Normal_prof, norm_prof, normal_tax, "2018", 
+                                  pbt_eur, tax_for_the_year_eur, tax_or_val = "val")
 
-Graph_norm_tax <- prep_norm_data(Normal_rev, norm_rev, normal_tax, "2018", 
-                                 revenue_eur, tax_for_the_year_eur, tax_or_val = "tax")
+Graph_norm_tax <- prep_norm_data(Normal_prof, norm_prof, normal_tax, "2018", 
+                                 pbt_eur, tax_for_the_year_eur, tax_or_val = "tax")
+
 
 
 ###################################### Graphing ##################################################
@@ -211,5 +212,5 @@ Create_normal_graphs <- function(data_norm){
 Create_normal_graphs(Graph_norm_data)
 Create_normal_graphs(Graph_norm_tax)
 
-str(Graph_norm_data)
+#str(Graph_norm_data)
 
