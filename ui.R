@@ -38,7 +38,8 @@ ui <- navbarPage("Website",
                               sidebarPanel(style = "color: #dbd1d2;",
                                            selectInput("focus", "Variable:", 
                                                      choices = names(Tax_to_map)),
-                                           textInput("year", "Year:", "2018")),
+                                           textInput("year", "Year:", "2018"),
+                                           actionButton("show_maps", "Show my map")),
                               mainPanel(style = "background-color: #dbd1d2;",
                                         plotOutput("cartogram", height = 1000)))
                           )
@@ -90,19 +91,36 @@ ui <- navbarPage("Website",
 
 server <- function(input, output, 
                    session){
-  #######Missing data outputs
+  ############################################## Missing data outputs ##########################################
   output$missing_plot <- renderPlot({
     missingPlot(input$filter)
     })
   
   
-  ######Cartogram outputs
-  output$cartogram <- renderPlot({
-    carto_funct(input$focus, input$year)
+  
+  
+  
+  
+  
+  ############################################## Cartogram outputs #############################################
+  
+  
+  carto_gram <- eventReactive(input$show_maps, {
+    carto_focus <- input$focus
+    carto_year <- input$year
+    carto_funct(carto_focus, carto_year)
   })
+
+  
+  output$cartogram <- renderPlot({carto_gram})
   
   
-  #####Normalisation outputs
+  
+  
+  
+  
+  
+  ########################################### Normalisation outputs ############################################
   
 
   

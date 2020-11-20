@@ -12,6 +12,7 @@ library(latticeExtra)
 library(rgdal)
 library(spatialEco)
 library(rnaturalearth)
+library(ggiraph)
 
 
 
@@ -34,7 +35,21 @@ country_names <- fread("C:/Users/Admin/Documents/EUI/countries.csv", sep = ",",
 Tax_to_map <- merge(Tax_aligned, country_names, by = "country", all.x = TRUE, all.y = FALSE)
 
 names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
-  
+
+
+####################### Adding real tax rates##########################################
+
+real_rates <- fread("C:/Users/Admin/Documents/EUI/Corporate-Tax-Rates-Data-1980-2019.csv", sep = ",", 
+                    encoding = "UTF-8", integer64= "numeric")
+
+real_rates[is.na(real_rates)] <- 0
+
+real_rates$rate <- as.numeric(real_rates$rate)
+
+names(real_rates)[names(real_rates) == "country"] <- "NAME"
+
+Tax_to_map <- merge(Tax_to_map, real_rates, all.x = T, by = c("NAME", "year"))
+
 
 
 #####Below deprecated as I have tried to make the map names better... 
@@ -83,11 +98,18 @@ names(Tax_to_map)[names(Tax_to_map) == "map_country"] <- "NAME"
    na.omit()
    
  
-   tax_cart <- cartogram_cont(wrld_simpl_tax, "sum_variable", 5) # Mapping #
-   plot(tax_cart["sum_variable"]) 
+   tax_cart <- cartogram_cont(wrld_simpl_tax, "sum_variable", 5) 
+   
+   # Mapping #
+   
+   plot(tax_cart)# +
+  #    geom_sf_interactive(aes(fill = "rate",
+    #                          tooltip = tip, data_id = NAME)) +
+   #   geom_sf(fill = "rate", lwd = 0.5) 
+   
    }
 
 
 
-# carto_funct(revenue_eur, 2018)
+ carto_funct(revenue_eur, 2018)
 
