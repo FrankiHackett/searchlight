@@ -111,5 +111,5 @@ Tax_to_map <- merge(Tax_to_map, real_rates, all.x = T, by = c("NAME", "year"))
 
 
 
- carto_funct(revenue_eur, 2018)
+ #carto_funct(revenue_eur, 2018)
 

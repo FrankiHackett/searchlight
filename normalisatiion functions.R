@@ -196,8 +196,10 @@ Graph_norm_tax <- prep_norm_data(Normal_prof, norm_prof, normal_tax, "2018",
 Create_normal_graphs <- function(data_norm){
     value_plot <- ggplot(data_norm, aes(fill = value_type, x = country, y = as.numeric(value))) +
   
-  # This add the bars with a blue color
+  # This add the bars with the correct colours
    geom_bar(stat = "identity", position = "dodge") +
+      
+      scale_fill_manual(values = c("#79A9D7", "#E99688")) +
   
   # Custom the theme: no axis title and no cartesian grid
     theme_minimal() +

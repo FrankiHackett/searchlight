@@ -63,14 +63,15 @@ Pivot_missing <- gather(Missing_data, key = value_type, value = "value",
 
 missingPlot <- function(value){
   Filtered_missing <- Pivot_missing[grep(value, Pivot_missing$company_country),]
-  missing_plot <- ggplot(Filtered_missing, aes(x= value_type, y = company_country,
-                         fill = value)) +
-     geom_tile(aes(height = 1)) +
+  missing_plot <- ggplot(Filtered_missing, aes(x= value_type, y = company_country)) +
+     geom_tile(aes(height = 1, 
+                   fill = value)) 
      theme(axis.text.x = element_text(
         face = 1
      ), legend.position = "none", 
      axis.text.y = element_text(
-       size = 10
+       size = 10 
+         
      )
     )
   return(missing_plot)

@@ -6,13 +6,17 @@ library(shinyjs)
 
 # font_import()
 
+
+
 source("Data cleansing.R")
 source("Cartogram functions.R")
 source("missing data functions.R")
 source("normalisatiion functions.R")
 source("website_text.R")
 
-ui <- navbarPage("Website",
+
+
+ui <- navbarPage("Tax Searchlight",
                 tabPanel("Missing data", 
                          modalDialog(div(intro_text, style = "font-size:160%"),
                            title = "Welcome!",
@@ -22,10 +26,9 @@ ui <- navbarPage("Website",
                            fade = TRUE
                          ),
                           sidebarLayout(
-                            setBackgroundColor(color = "#05234F"),
+                            setBackgroundColor(color = "#FFFFFF"),
                             fluidRow(
-                              sidebarPanel(style = "background-color: #dbd1d2;",
-                                           textInput("filter", "Filter", "2019")),
+                              sidebarPanel(textInput("filter", "Filter", "2019")),
                               mainPanel(style = "color: #dbd1d2;",
                                      plotOutput("missing_plot", height = 1000, 
                                                 hover = hoverOpts(id="plot_hover"))))
@@ -33,20 +36,19 @@ ui <- navbarPage("Website",
                  ),
                  tabPanel("Maps",
                           sidebarLayout(
-                            setBackgroundColor(color = "#05234F"),
+                            setBackgroundColor(color = "#FFFFFF"),
                             fluidRow(
                               sidebarPanel(style = "color: #dbd1d2;",
                                            selectInput("focus", "Variable:", 
                                                      choices = names(Tax_to_map)),
                                            textInput("year", "Year:", "2018"),
                                            actionButton("show_maps", "Show my map")),
-                              mainPanel(style = "background-color: #dbd1d2;",
-                                        plotOutput("cartogram", height = 1000)))
+                              mainPanel(plotOutput("cartogram", height = 1000)))
                           )
                  ),
                  tabPanel("Normalization",
                           sidebarLayout(
-                            setBackgroundColor(color = "#05234F"),
+                            setBackgroundColor(color = "#FFFFFF"),
                             fluidRow(
                               sidebarPanel(style = "color: #dbd1d2;",
                                            selectInput("parameter", "Parameter:", 
@@ -56,8 +58,7 @@ ui <- navbarPage("Website",
                                            selectInput("year", "Year:", 
                                                        choices = c("2017", "2018", "2019", "2020")),
                                            actionButton("show_graphs", "Show me my graphs")),
-                              mainPanel(style = "background-color: #dbd1d2;",
-                                           plotOutput("normalplot"),
+                              mainPanel(plotOutput("normalplot"),
                                         plotOutput("tax_plot"))
                           ))
                  ),
@@ -69,19 +70,17 @@ ui <- navbarPage("Website",
                     .navbar-default .navbar-nav > li > a {color:#05234F;}
                     .navbar-default .navbar-nav > .active > a,
                     .navbar-default .navbar-nav > .active > a:focus,
-                    .navbar-default .navbar-nav > .active > a:hover {color: #E99688;background-color: #05234F;}
+                    .navbar-default .navbar-nav > .active > a:hover {color: #E99688;background-color: #FFFFFF;}
                     .navbar-default .navbar-nav > li > a:hover {color: #C8470E;}")
                    ),
                 
                 tabPanel("About the data", 
-                         # style = "background-color: #dbd1d2;",
                          fluidPage(
-                           setBackgroundColor(color = "#05234F"),
+                           setBackgroundColor(color = "#FFFFFF"),
                            fluidRow(
                              column(1),
                              column(10, about_data, 
-                                    style = "background-color: #05234f;", 
-                                    style = "color: #dbd1d2;"),
+                                    style = "color: #05234F;"),
                              column(1)
                            )
                          )
@@ -105,10 +104,11 @@ server <- function(input, output,
   ############################################## Cartogram outputs #############################################
   
   
-  carto_gram <- eventReactive(input$show_maps, {
-    carto_focus <- input$focus
-    carto_year <- input$year
-    carto_funct(carto_focus, carto_year)
+  carto_gram <- eventReactive(input$show_maps, 
+                         {
+ #   carto_focus <- input$focus
+  #  carto_year <- input$year
+    carto_funct(input$focus, input$year)
   })
 
   
